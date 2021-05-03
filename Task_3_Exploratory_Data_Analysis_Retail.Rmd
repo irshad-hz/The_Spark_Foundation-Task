@@ -1,0 +1,236 @@
+---
+title: "EXPLORATORY DATA ANALYSIS : RETAIL"
+author: "Objectives: To Perform Exploratory Data Analysis on dataset SampleSuperstore. As a business manager, try to find out the weak areas where you can work to make more profit. What all business problems you can derive by exploring the data."
+date: "Author: Irshad"
+output: html_document
+---
+
+## Installing and loading necessary libraries
+```{r message=FALSE, warning=FALSE}
+install.packages("tidyverse")
+library(tidyverse)
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("skimr")
+library(skimr)
+install.packages("janitor")
+library(janitor)
+install.packages("dplyr")
+library(dplyr)
+
+```
+
+## Importing the dataset
+
+```{r message=FALSE, warning=FALSE}
+Superstore <- read_csv("SampleSuperstore.csv") #load the data
+```
+
+## Dataset features
+
+```{r pressure, echo=TRUE, message=TRUE}
+head(Superstore) ## Prints the top 6 rows of data
+```
+```{r include=FALSE}
+Superstore <- rename(Superstore,Shipmode = "Ship Mode")
+```
+```{r include=FALSE}
+Superstore <- rename(Superstore,Subcategory = "Sub-Category")
+```
+
+
+## Information about the dataset
+
+```{r}
+skim_without_charts(Superstore)
+```
+
+```{r}
+glimpse(Superstore)
+```
+
+
+```{r}
+colnames(Superstore) ##Displays the column names
+```
+
+
+```{r}
+sum(is_null(Superstore)) ## Checking for null values 
+```
+
+#### Checking if there are any duplicate rows
+
+
+```{r}
+sum(duplicated(Superstore)) 
+```
+
+```{r}
+Superstore <- unique(Superstore) ##Removing Duplicate
+```
+
+
+
+```{r}
+str(Superstore) ##Duplicates removed 
+```
+
+## Checking for Outliers 
+
+```{r}
+ggplot(Superstore) +
+  aes(x = Discount) +
+  geom_histogram(bins = 30L, fill = "#0a4b8a") +
+  theme_minimal()
+```
+
+```{r}
+Superstore <- filter(Superstore, Discount > 0.45) ##filtering outliers 
+```
+
+
+```{r}
+head(Superstore$Discount) #filtered outliers
+```
+## Data visualization
+
+### * Analysing Shipmode
+
+```{r}
+ggplot(Superstore, aes(Shipmode)) + geom_bar(aes(fill = Shipmode))
+```
+
+### Analysis 1
+#### we can find out that standard class ship mode is preferred more than the other ship modes are available.
+
+## * Analysing Segment
+
+```{r}
+ggplot(Superstore, aes(Segment )) + geom_bar(aes(fill = Segment )) +  scale_fill_brewer(palette = "Blues") 
+```
+
+### Analysis 2
+#### Consumer has the highest count than corporate and home office.
+
+## * Analysing Category
+
+```{r}
+ggplot(Superstore, aes(Category)) + geom_bar(aes(fill = Category)) + scale_fill_grey( 
+start = 0.2, end = 0.8, 
+na.value = "red") 
+```
+
+### Analysis 3
+#### Office Supplies Category has the highest count.
+
+## * Analysing Region
+
+```{r}
+ggplot(Superstore, aes(Region)) + geom_bar(aes(fill = Region)) + scale_fill_brewer(palette = "Reds")
+```
+
+### Analysis 4
+#### Here West region has the highest customer's count
+
+```{r include=FALSE}
+Superstore <- read_csv("SampleSuperstore.csv")
+```
+```{r include=FALSE}
+Superstore <- rename(Superstore,Shipmode = "Ship Mode")
+Superstore <- rename(Superstore,Subcategory = "Sub-Category")
+```
+
+## * Analysing Category and Sub-Category
+
+```{r}
+ggplot(data=Superstore) + geom_bar(mapping = aes(x=Category , fill=Subcategory)) + facet_wrap(~ Subcategory) +  theme(axis.text.x = element_text(angle = 30))
+```
+
+### Analysis 5
+#### * Furniture which consists of 4 subcategories items Bookcases, Chairs, Tables, Furnishings
+#### * Office Supplies category consist 9 sub-categories Labels, Storage, Art, Binders, Appliances, Paper, Envelopes, Fasteners, Supplies
+#### * Technology involves 4 subcategories, those are Phones, Accessories, Machines, Copiers.
+
+```{r include=FALSE}
+Superstore <- filter(Superstore, Discount > 0.45)
+```
+
+## * Analysing Profit, Discount and Sales
+```{r}
+ggplot(Superstore, aes(Profit , Sales)) + 
+ geom_point(aes(color = Discount , size=Discount)) + 
+ geom_smooth(method ="lm") + 
+ coord_cartesian() + 
+ scale_color_gradient() + 
+ theme_bw()
+```
+
+## * sales vs profit
+
+```{r}
+ggplot(data=Superstore, aes(x=Sales,y=Profit,col= Shipmode, shape=Shipmode))+ geom_point()+geom_smooth(method ="lm")+labs(title="Sales vs Profit")
+```
+
+### Analysis 6
+#### More profit/Loss from Standard class.
+
+## * Sales vs Discount
+
+```{r}
+ggplot() + geom_point(data=Superstore, aes(x=Discount,y=Sales,col= Shipmode, shape=Shipmode))+labs(title="Sales vs Discount")
+```
+
+### Analysis 7
+#### Discount attracts mostly the Standard class ,Same day receive least Discount
+
+## * Category vs Discount
+
+```{r}
+ggplot() + geom_bar(data=Superstore, aes(x=Category,y=Discount,fill= Region),stat = "identity")
+```
+
+### Analysis 8
+### office suppliers gets more Discount 
+
+
+## * Profit and Discount trade off in the different category
+
+```{r}
+ggplot(Superstore, aes(Profit ,Discount )) +   geom_jitter(aes(shape = Category, color = Category)) + facet_grid(~ Category) 
+```
+
+### Analysis 9
+#### As discount is increased 0.5 or more losses are faced in all categories product.
+
+
+## *  Sales and discount of Product effect in the different category product.
+
+```{r}
+ggplot(Superstore, aes(Sales ,Discount )) +   geom_jitter(aes(shape = Category, color = Category))  +facet_wrap(~ Category)+ theme(axis.text.x = element_text(angle = 20))
+
+```
+
+### Analysis 10
+#### * maximum discount on 0.7 and 0.8, Sales of Office supplies was increased.
+#### * Sales of Furniture category was increased due to discount.
+#### * Sales of Technology category remains same. 
+
+
+
+## Conclusion
+
+#### * Discounts should be based on sales and should not increase after a particular range otherwise unnecessary   discounts with low sales can witness huge losses.
+#### * Binders and Machine industry should be focused upon more, Binders gets more discount but gives more losses   Office Suppliers sales less but gets more discount and gives losses
+#### * Central Region should not offer any kind of discounts for better performance.
+#### * Furniture Category performance is less comparing to others so discount should not be give to them.
+#### * If Same day shipment receives more discounts then can trigger more sales/Profit.
+
+
+
+## THANK YOU
+
+
+
+
+
